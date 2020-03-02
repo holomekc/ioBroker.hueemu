@@ -1,0 +1,35 @@
+{
+  "state": {
+    "on": false,
+    "bri": 254,
+    "reachable": true,
+    "mode": "homeautomation",
+    "alert": "none"
+  },
+  "type": "Dimmable light",
+  "name": "ioBrokerTemplatedLight",
+  "modelid": "LWB010",
+  "uniqueid": "44df4f5f-49d9-4580-90f6-0790a59a77a1",
+  "manufacturername": "Philips",
+  "swversion": "11111",
+  "config": {
+    "archetype": "classicbulb",
+    "function": "functional",
+    "direction": "omnidirectional"
+  },
+  "capabilities": {
+    "certified": true,
+    "streaming": {
+      "renderer": false,
+      "proxy": false
+    },
+    "control": {
+      "mindimlevel": 1000,
+      "maxlumen": 250,
+      "ct": {
+        "min": 153,
+        "max": 500
+      }
+    }
+  }
+}

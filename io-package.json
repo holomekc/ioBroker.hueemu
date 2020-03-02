@@ -1,0 +1,82 @@
+{
+	"common": {
+		"name": "hueemu",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "Hue-Emu",
+		"titleLang": {
+			"en": "Hue-Emu",
+			"de": "Hue-Emu",
+			"ru": "Hue-Emu",
+			"pt": "Hue-Emu",
+			"nl": "Hue-Emu",
+			"fr": "Hue-Emu",
+			"it": "Hue-Emu",
+			"es": "Hue-Emu",
+			"pl": "Hue-Emu",
+			"zh-cn": "Hue-Emu"
+		},
+		"desc": {
+			"en": "Simulate a Hue-Bridge with self created lights.",
+			"de": "Simulieren einer Hue-Bridge mit selbst erstellten Lichtern.",
+			"ru": "Моделируйте мост Хью-Бридж с помощью самосозданного света.",
+			"pt": "Simular um Hue-Bridge com luzes auto-criadas.",
+			"nl": "Simuleer een Hue-Bridge met zelfgemaakte lichten.",
+			"fr": "Simulez un pont de teinte avec des lumières créées par vous-même.",
+			"it": "Simulare un Hue-Bridge con luci autocostruite.",
+			"es": "Simular un Hue-Bridge con luces creadas por uno mismo.",
+			"pl": "Symuluj Hue-Bridge'a za pomocą samodzielnie stworzonych świateł.",
+			"zh-cn": "用自创建的灯光模拟色相桥"
+		},
+		"authors": [
+			"Christopher Holomek <holomekc.github@gmail.com>"
+		],
+		"keywords": [
+			"ioBroker",
+			"Hue",
+			"Smart Home",
+			"home automation"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "build/main.js",
+		"icon": "hue-emu-logo.png",
+		"enabled": false,
+		"extIcon": "https://raw.githubusercontent.com/holomekc/ioBroker.hueemu/master/admin/hue-emu-logo.png",
+		"readme": "https://github.com/holomekc/ioBroker.hueemu/blob/master/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "lighting",
+		"compact": true,
+		"materialize": true,
+		"supportCustoms": true,
+		"dependencies": [
+			{
+				"js-controller": ">=1.4.2"
+			}
+		]
+	},
+	"native": {
+		"host": "192.168.178.10",
+		"port": "192.168.178.10",
+		"discoveryHost": "192.168.178.10",
+		"discoveryPort": "192.168.178.10",
+		"udn": "",
+		"mac": ""
+	},
+	"objects": [],
+	"instanceObjects": []
+}

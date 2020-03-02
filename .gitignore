@@ -1,0 +1,67 @@
+# IDE
+.idea
+*.iml
+*.code-workspace
+node_modules
+nbproject
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Compiled binary
+# build
+
+# Dependency directories
+node_modules/
+
+# TypeScript v1 declaration files
+typings/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# next.js build output
+.next
+
+.git
+
+# Sourcemaps
+maps/
+
+# npm package files
+iobroker.*.tgz
+
+Thumbs.db
+
+# NYC coverage files
+coverage
+.nyc*
+
+# i18n intermediate files
+admin/i18n/flat.txt
+admin/i18n/*/flat.txt

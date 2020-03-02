@@ -1,0 +1,28 @@
+{
+  "state": {
+    "on": false,
+    "reachable": true,
+    "mode": "homeautomation",
+    "alert": "none"
+  },
+  "type": "On/off light",
+  "modelid": "Plug 01",
+  "uniqueid": "e16ba9f9-1176-4979-9131-5e8ba8700167",
+  "manufacturername": "OSRAM",
+  "productname": "On/Off plug",
+  "swversion": "V1.04.12",
+  "name": "ioTest6",
+  "config": {
+    "archetype": "classicbulb",
+    "function": "functional",
+    "direction": "omnidirectional"
+  },
+  "capabilities": {
+    "certified": false,
+    "streaming": {
+      "renderer": false,
+      "proxy": false
+    },
+    "control": {}
+  }
+}
