@@ -29,8 +29,6 @@ Work in progress. Feedback appreciated.
 
 **httpsPort**: If set the server will also start respond to https. E.g. 8071 (443 not needed for Alexa)
  
-**udn**: pick a random uuid
-
 **mac**: Some service may check this value. You can pick the one of your interface
 
 ## How it works
