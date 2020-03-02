@@ -325,9 +325,11 @@ export class HueEmu extends utils.Adapter {
                 read: true
             },
             native: {},
+        }, (err, id) => {
+            if (!err) {
+                this.definition.addFunction(lightId, `state`, undefined as unknown as string);
+            }
         });
-
-        this.definition.addFunction('lightId', `${lightId}.state`, undefined as unknown as string);
 
         Object.keys(lights[lightId].state).forEach(stateKey => {
             this.addState(`${lightId}.state.${stateKey}`, stateKey, lights[lightId].state[stateKey]);
@@ -340,6 +342,7 @@ export class HueEmu extends utils.Adapter {
             common: {
                 name: 'name',
                 type: 'string',
+                role: 'text',
                 read: true,
                 write: true
             },
