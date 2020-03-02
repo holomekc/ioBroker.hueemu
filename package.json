@@ -21,7 +21,7 @@
   "dependencies": {
     "@iobroker/adapter-core": "^2.2.1",
     "rxjs": "^6.5.4",
-    "hue-emu": "0.0.7",
+    "hue-emu": "0.0.8",
     "uuid": "^7.0.1"
   },
   "devDependencies": {
