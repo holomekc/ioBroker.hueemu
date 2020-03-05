@@ -63,6 +63,8 @@
 		"compact": true,
 		"materialize": true,
 		"supportCustoms": true,
+		"connectionType ": "local",
+		"dataSource": "push",
 		"dependencies": [
 			{
 				"js-controller": ">=1.4.2"
