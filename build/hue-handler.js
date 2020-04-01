@@ -51,6 +51,7 @@ class HueHandler {
         });
     }
     onLights(req, username) {
+        this.adapter.log.debug(`Get lights`);
         return this.checkUserAuthenticated(username).pipe(operators_1.switchMap(() => {
             return new rxjs_1.Observable(subscriber => {
                 const lights = {};
@@ -82,6 +83,7 @@ class HueHandler {
         }));
     }
     onLight(req, username, lightId) {
+        this.adapter.log.debug(`Get light=${lightId}`);
         return this.checkUserAuthenticated(username).pipe(operators_1.switchMap(() => {
             return new rxjs_1.Observable(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
@@ -157,15 +159,18 @@ class HueHandler {
         }));
     }
     onLightsState(req, username, lightId, key, value) {
+        this.adapter.log.debug(`Update for light=${lightId}, key=${key}, value=${value}`);
         return this.checkUserAuthenticated(username).pipe(operators_1.switchMap(() => {
             return new rxjs_1.Observable(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
                     if (!stateObjectsErr && stateObjects) {
+                        let found = false;
                         stateObjects.forEach(stateObject => {
                             const id = stateObject._id.substr(this.adapter.namespace.length + 1);
                             const lightKey = stateObject._id.substr(stateObject._id.lastIndexOf('.') + 1);
                             // this.log.info('onState: ' + id);
                             if (lightKey === key) {
+                                found = true;
                                 this.adapter.setState(id, {
                                     val: value, ack: true
                                 }, (err, id) => {
@@ -183,6 +188,10 @@ class HueHandler {
                                 });
                             }
                         });
+                        if (!found) {
+                            this.adapter.log.warn(`Could not find key=${key} for light=${lightId}`);
+                            subscriber.error(hue_error_1.HueError.PARAMETER_NOT_AVAILABLE.withParams(key));
+                        }
                     }
                     else {
                         subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
@@ -206,6 +215,7 @@ class HueHandler {
         });
     }
     onAll(req, username) {
+        this.adapter.log.debug(`Get all`);
         return this.checkUserAuthenticated(username).pipe(operators_1.switchMap(() => {
             return this.onLights(req, username).pipe(operators_1.map(lights => {
                 const result = {};

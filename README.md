@@ -154,6 +154,9 @@ Let me know if other integrations work as well.
 
 ## Changelog
 
+### 0.0.2
+* (holomekc) improve handling missing state keys
+
 ### 0.0.1
 * (holomekc) initial version
 

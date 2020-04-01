@@ -62,6 +62,8 @@ export class HueHandler implements HueServerCallback {
     }
 
     onLights(req: Request, username: string): Observable<any> {
+        this.adapter.log.debug(`Get lights`);
+
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
             return new Observable<any>(subscriber => {
 
@@ -98,6 +100,8 @@ export class HueHandler implements HueServerCallback {
     }
 
     onLight(req: Request, username: string, lightId: string): Observable<any> {
+        this.adapter.log.debug(`Get light=${lightId}`);
+
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
             return new Observable<any>(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
@@ -180,10 +184,15 @@ export class HueHandler implements HueServerCallback {
     }
 
     onLightsState(req: Request, username: string, lightId: string, key: string, value: any): Observable<any> {
+        this.adapter.log.debug(`Update for light=${lightId}, key=${key}, value=${value}`);
+
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
             return new Observable<any>(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
                     if (!stateObjectsErr && stateObjects) {
+
+                        let found = false;
+
                         stateObjects.forEach(stateObject => {
 
                             const id = stateObject._id.substr(this.adapter.namespace.length + 1);
@@ -191,6 +200,7 @@ export class HueHandler implements HueServerCallback {
 
                             // this.log.info('onState: ' + id);
                             if (lightKey === key) {
+                                found = true;
                                 this.adapter.setState(id, {
                                     val: value, ack: true
                                 }, (err, id) => {
@@ -208,6 +218,10 @@ export class HueHandler implements HueServerCallback {
                                 });
                             }
                         });
+                        if (!found) {
+                            this.adapter.log.warn(`Could not find key=${key} for light=${lightId}`);
+                            subscriber.error(HueError.PARAMETER_NOT_AVAILABLE.withParams(key));
+                        }
                     } else {
                         subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                     }
@@ -232,6 +246,8 @@ export class HueHandler implements HueServerCallback {
     }
 
     onAll(req: Request, username: string): Observable<any> {
+        this.adapter.log.debug(`Get all`);
+
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
             return this.onLights(req, username).pipe(map(lights => {
 
