@@ -91,8 +91,8 @@ class HueEmu extends utils.Adapter {
             else {
                 certObservable = rxjs_1.of(undefined);
             }
-            certObservable.subscribe(value => {
-                let hueBuilder = hue_emu_1.HueBuilder.builder().withHost(this.config.host).withPort(this.config.port).withHttps(value)
+            certObservable.subscribe(httpsConfig => {
+                let hueBuilder = hue_emu_1.HueBuilder.builder().withHost(this.config.host).withPort(this.config.port).withHttps(httpsConfig)
                     .withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
                     .withUdn(this.config.udn).withLogger(new hue_emu_logger_1.HueEmuLogger(this));
                 new hue_emu_1.HueUpnp(hueBuilderUpnp);
@@ -376,6 +376,7 @@ class HueEmu extends utils.Adapter {
                     subscriber.complete();
                     return;
                 }
+                // TODO: store generated and load generated
                 this.log.info(this.namespace);
                 let certificateDefinition = utils_1.generateCertificate();
                 subscriber.next(new cert_1.Cert(certificateDefinition.cert, certificateDefinition.private));

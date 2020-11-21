@@ -128,8 +128,8 @@ export class HueEmu extends utils.Adapter {
             certObservable = of(undefined);
         }
 
-        certObservable.subscribe(value => {
-            let hueBuilder = HueBuilder.builder().withHost(this.config.host).withPort(this.config.port).withHttps(value)
+        certObservable.subscribe(httpsConfig => {
+            let hueBuilder = HueBuilder.builder().withHost(this.config.host).withPort(this.config.port).withHttps(httpsConfig)
                 .withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
                 .withUdn(this.config.udn).withLogger(new HueEmuLogger(this));
 
@@ -430,6 +430,7 @@ export class HueEmu extends utils.Adapter {
                     subscriber.complete();
                     return;
                 }
+                // TODO: store generated and load generated
 
                 this.log.info(this.namespace);
 

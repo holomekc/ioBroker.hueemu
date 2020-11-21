@@ -1,19 +1,31 @@
 {
 	"common": {
 		"name": "hueemu",
-		"version": "0.0.2",
+		"version": "0.0.3",
 		"news": {
+			"0.0.3": {
+				"en": "Picked correct network interface if multiple are available",
+				"de": "Korrekte Netzwerkschnittstelle ausgewählt, falls mehrere verfügbar sind",
+				"ru": "Выбран правильный сетевой интерфейс, если их несколько.",
+				"pt": "Escolhido o interface de rede correcto se houver múltiplos disponíveis",
+				"nl": "De juiste netwerkinterface gekozen als er meerdere beschikbaar zijn",
+				"fr": "Choix de la bonne interface réseau si plusieurs sont disponibles",
+				"it": "Scelta dell'interfaccia di rete corretta se sono disponibili più interfacce",
+				"es": "Escogió la interfaz de red correcta si hay varias disponibles",
+				"pl": "Wybierz prawidłowy interfejs sieciowy, jeśli dostępnych jest wiele opcji",
+				"zh-cn": "如果有多个可用网络接口，则选择正确的网络接口"
+			},
 			"0.0.2": {
 				"en": "Improve handling missing state keys",
 				"de": "Verbessern Sie die Handhabung fehlender Zustandsschlüssel ",
-				"ru": "todo",
-				"pt": "todo",
-				"nl": "todo",
-				"fr": "todo",
-				"it": "todo",
-				"es": "todo",
-				"pl": "todo",
-				"zh-cn": "todo"
+				"ru": "Улучшение работы с отсутствующими государственными ключами",
+				"pt": "Melhorar o manuseamento das chaves de estado em falta",
+				"nl": "Verbeteren van de afhandeling van ontbrekende statussleutels",
+				"fr": "Améliorer le traitement des clés d'état manquantes",
+				"it": "Migliorare la gestione delle chiavi di stato mancanti",
+				"es": "Mejorar el manejo de las llaves de estado faltantes",
+				"pl": "Lepsza obsługa brakujących kluczy stanu",
+				"zh-cn": "改进处理丢失的状态键"
 			},
 			"0.0.1": {
 				"en": "initial release",
