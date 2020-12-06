@@ -36,6 +36,7 @@ declare global {
             httpsPort: number | undefined;
             udn: string;
             mac: string;
+            upnpPort: number | undefined;
 
             // Or use a catch-all approach
             [key: string]: any;
@@ -105,9 +106,11 @@ export class HueEmu extends utils.Adapter {
         this.config.httpsPort = this.toUndefinedPort(this.config.httpsPort);
         this.config.udn = this.config.udn ? this.config.udn.trim() : uuid.v4();
         this.config.mac = this.config.mac ? this.config.mac.trim() : '';
+        this.config.upnpPort = this.toDefaultPort(this.config.upnpPort, 1900);
 
         let hueBuilderUpnp = HueBuilder.builder().withHost(this.config.host).withPort(this.config.port)
-            .withHttps(undefined).withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort).withUdn(this.config.udn);
+            .withHttps(undefined).withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
+            .withUdn(this.config.udn).withUpnpPort(this.config.upnpPort);
 
         if (this.log.level === 'silly') {
             // There might be a lot of upnp communication which would flood the logs. So only on silly.
@@ -174,7 +177,7 @@ export class HueEmu extends utils.Adapter {
         });
     }
 
-    private initDisableAuth(): Observable<void>  {
+    private initDisableAuth(): Observable<void> {
         return new Observable<void>(subscriber => {
             this.setObjectNotExists('disableAuth', {
                 type: 'state',
@@ -190,7 +193,7 @@ export class HueEmu extends utils.Adapter {
                 this.getState('disableAuth', (err, state) => {
                     if (!err && state && state.val) {
                         this.disableAuth = state.val;
-                    }else {
+                    } else {
                         this.disableAuth = false;
                     }
 
@@ -279,7 +282,7 @@ export class HueEmu extends utils.Adapter {
     }
 
     private createLights(id: string, state: ioBroker.State) {
-        if(state.ack) {
+        if (state.ack) {
             // ignoring
             return;
         }
@@ -403,10 +406,20 @@ export class HueEmu extends utils.Adapter {
             if (typeof port === 'number') {
                 return port;
             } else {
-                return parseInt(port);
+                return parseInt(port.trim());
             }
         } else {
             throw new Error('Not all ports set');
+        }
+    }
+
+    private toDefaultPort(port: any | undefined, defaultPort: number): number {
+        let parsedPort = this.toUndefinedPort(port);
+
+        if (parsedPort) {
+            return parsedPort;
+        } else {
+            return defaultPort;
         }
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.hueemu",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Hue Bridge Emulator",
   "author": {
     "name": "Christopher Holomek",
@@ -21,7 +21,7 @@
   "dependencies": {
     "@iobroker/adapter-core": "^2.2.1",
     "rxjs": "^6.5.4",
-    "hue-emu": "0.0.9",
+    "hue-emu": "0.0.10",
     "uuid": "^7.0.1"
   },
   "devDependencies": {

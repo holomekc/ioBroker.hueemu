@@ -72,8 +72,10 @@ class HueEmu extends utils.Adapter {
             this.config.httpsPort = this.toUndefinedPort(this.config.httpsPort);
             this.config.udn = this.config.udn ? this.config.udn.trim() : uuid.v4();
             this.config.mac = this.config.mac ? this.config.mac.trim() : '';
+            this.config.upnpPort = this.toDefaultPort(this.config.upnpPort, 1900);
             let hueBuilderUpnp = hue_emu_1.HueBuilder.builder().withHost(this.config.host).withPort(this.config.port)
-                .withHttps(undefined).withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort).withUdn(this.config.udn);
+                .withHttps(undefined).withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
+                .withUdn(this.config.udn).withUpnpPort(this.config.upnpPort);
             if (this.log.level === 'silly') {
                 // There might be a lot of upnp communication which would flood the logs. So only on silly.
                 hueBuilderUpnp.withLogger(new hue_emu_logger_1.HueEmuLogger(this));
@@ -348,11 +350,20 @@ class HueEmu extends utils.Adapter {
                 return port;
             }
             else {
-                return parseInt(port);
+                return parseInt(port.trim());
             }
         }
         else {
             throw new Error('Not all ports set');
+        }
+    }
+    toDefaultPort(port, defaultPort) {
+        let parsedPort = this.toUndefinedPort(port);
+        if (parsedPort) {
+            return parsedPort;
+        }
+        else {
+            return defaultPort;
         }
     }
     toUndefinedPort(port) {

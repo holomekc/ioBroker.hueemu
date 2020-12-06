@@ -74,4 +74,16 @@ systemDictionary = {
 		"pl": "Mac-Adres używany w odpowiedziach API.",
 		"zh-cn": "API响应中使用的Mac地址"
 	},
+	"upnpPort": {
+		"en": "UPNP port",
+		"de": "UPNP-Port",
+		"ru": "UPNP-порт",
+		"pt": "Porto UPNP",
+		"nl": "UPNP-poort",
+		"fr": "Port UPNP",
+		"it": "Porta UPNP",
+		"es": "Puerto UPNP",
+		"pl": "Port UPNP",
+		"zh-cn": "UPNP端口"
+	},
 };

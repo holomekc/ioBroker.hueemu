@@ -1,8 +1,20 @@
 {
 	"common": {
 		"name": "hueemu",
-		"version": "0.0.3",
+		"version": "0.0.4",
 		"news": {
+			"0.0.4": {
+				"en": "Configuration of upnp port allowed",
+				"de": "Konfiguration des upnp-Ports erlaubt",
+				"ru": "Конфигурация входного порта разрешена",
+				"pt": "Configuração de porta upnp permitida",
+				"nl": "Configuratie van upnp-poort toegestaan",
+				"fr": "Configuration du port upnp autorisée",
+				"it": "Configurazione della porta upnp consentita",
+				"es": "Se permite la configuración del puerto upnp",
+				"pl": "Konfiguracja dozwolonego portu wejściowego",
+				"zh-cn": "允许配置upnp端口"
+			},
 			"0.0.3": {
 				"en": "Picked correct network interface if multiple are available",
 				"de": "Korrekte Netzwerkschnittstelle ausgewählt, falls mehrere verfügbar sind",
@@ -101,7 +113,8 @@
 		"discoveryHost": "192.168.178.10",
 		"discoveryPort": "192.168.178.10",
 		"udn": "",
-		"mac": ""
+		"mac": "",
+		"upnpPort": "1900"
 	},
 	"objects": [],
 	"instanceObjects": []
