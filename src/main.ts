@@ -53,7 +53,7 @@ export class HueEmu extends utils.Adapter {
 
     private definition: HueEmuDefinition;
 
-    public constructor(options: Partial<ioBroker.AdapterOptions> = {}) {
+    public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
             name: 'hueemu',
@@ -110,7 +110,7 @@ export class HueEmu extends utils.Adapter {
 
         let hueBuilderUpnp = HueBuilder.builder().withHost(this.config.host).withPort(this.config.port)
             .withHttps(undefined).withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
-            .withUdn(this.config.udn).withUpnpPort(this.config.upnpPort);
+            .withUdn(this.config.udn).withMac(this.config.mac).withUpnpPort(this.config.upnpPort);
 
         if (this.log.level === 'silly') {
             // There might be a lot of upnp communication which would flood the logs. So only on silly.
@@ -134,10 +134,10 @@ export class HueEmu extends utils.Adapter {
         certObservable.subscribe(httpsConfig => {
             let hueBuilder = HueBuilder.builder().withHost(this.config.host).withPort(this.config.port).withHttps(httpsConfig)
                 .withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
-                .withUdn(this.config.udn).withLogger(new HueEmuLogger(this));
+                .withUdn(this.config.udn).withMac(this.config.mac).withLogger(new HueEmuLogger(this));
 
             new HueUpnp(hueBuilderUpnp);
-            new HueServer(hueBuilder, new HueHandler(this));
+            new HueServer(hueBuilder, new HueHandler(this, hueBuilder));
         });
 
         this.setObjectNotExists('createLight', {
@@ -145,7 +145,8 @@ export class HueEmu extends utils.Adapter {
             common: {
                 name: 'createLight',
                 read: true,
-                write: true
+                write: true,
+                role: 'state'
             },
             native: {},
         }, () => {
@@ -192,7 +193,7 @@ export class HueEmu extends utils.Adapter {
             }, () => {
                 this.getState('disableAuth', (err, state) => {
                     if (!err && state && state.val) {
-                        this.disableAuth = state.val;
+                        this.disableAuth = state.val as boolean;
                     } else {
                         this.disableAuth = false;
                     }
@@ -209,7 +210,7 @@ export class HueEmu extends utils.Adapter {
             type: 'state',
             common: {
                 name: name,
-                type: typeof value,
+                type: typeof value as 'number' | 'string' | 'boolean' | 'array' | 'object' | 'mixed' | 'file',
                 role: HueEmuDefinition.determineRole('state', name),
                 read: true,
                 write: true
@@ -263,11 +264,11 @@ export class HueEmu extends utils.Adapter {
                         clearTimeout(this.timeoutId);
                     }
 
-                    this.pairingEnabled = state.val;
+                    this.pairingEnabled = state.val as boolean;
                     // TODO: config for pairing
                     this.timeoutId = setTimeout(() => this._pairingEnabled = false, 50000);
                 } else if (id === this.namespace + '.disableAuth') {
-                    this.disableAuth = state.val;
+                    this.disableAuth = state.val as boolean;
                 } else {
                     // just ack everything else
                     this.setState(id, {ack: true, val: state.val});
@@ -287,7 +288,7 @@ export class HueEmu extends utils.Adapter {
             return;
         }
         try {
-            const lights = typeof state.val === 'object' ? state.val : JSON.parse(state.val);
+            const lights = typeof state.val === 'object' ? state.val : JSON.parse(state.val as any);
 
             this.log.info(lights);
 
@@ -313,8 +314,7 @@ export class HueEmu extends utils.Adapter {
         this.setObjectNotExists(lightId, {
             type: 'device',
             common: {
-                name: lights[lightId].name,
-                read: true
+                name: lights[lightId].name
             },
             native: {},
         });
@@ -324,8 +324,7 @@ export class HueEmu extends utils.Adapter {
         this.setObjectNotExists(`${lightId}.state`, {
             type: 'channel',
             common: {
-                name: 'state',
-                read: true
+                name: 'state'
             },
             native: {},
         }, (err, id) => {
@@ -458,7 +457,7 @@ export class HueEmu extends utils.Adapter {
 
 if (module.parent) {
     // Export the constructor in compact mode
-    module.exports = (options: Partial<ioBroker.AdapterOptions> | undefined) => new HueEmu(options);
+    module.exports = (options: Partial<utils.AdapterOptions> | undefined) => new HueEmu(options);
 } else {
     // otherwise start the instance directly
     (() => new HueEmu())();

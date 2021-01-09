@@ -1,37 +1,48 @@
 {
   "state": {
     "on": false,
-    "bri": 254,
-    "ct": 439,
+    "bri": 127,
+    "ct": 392,
+    "alert": "none",
     "colormode": "ct",
-    "reachable": true,
     "mode": "homeautomation",
-    "alert": "none"
+    "reachable": true
+  },
+  "swupdate": {
+    "state": "noupdates",
+    "lastinstall": "2020-03-04T02:35:58"
   },
   "type": "Color temperature light",
   "name": "ioBrokerTemplatedLight",
   "modelid": "LTW012",
-  "uniqueid": "97c4dac7-11f1-4333-b122-e34481fc7cbe",
-  "manufacturername": "Philips",
-  "swversion": "11111",
-  "config": {
-    "archetype": "classicbulb",
-    "function": "functional",
-    "direction": "omnidirectional"
-  },
+  "manufacturername": "Signify Netherlands B.V.",
+  "productname": "Hue ambiance candle",
   "capabilities": {
     "certified": true,
+    "control": {
+      "mindimlevel": 2000,
+      "maxlumen": 450,
+      "ct": {
+        "min": 153,
+        "max": 454
+      }
+    },
     "streaming": {
       "renderer": false,
       "proxy": false
-    },
-    "control": {
-      "mindimlevel": 1000,
-      "maxlumen": 250,
-      "ct": {
-        "min": 153,
-        "max": 500
-      }
     }
-  }
+  },
+  "config": {
+    "archetype": "candlebulb",
+    "function": "decorative",
+    "direction": "omnidirectional",
+    "startup": {
+      "mode": "powerfail",
+      "configured": true
+    }
+  },
+  "uniqueid": "00:17:88:01:02:aa:aa:aa-0c",
+  "swversion": "1.50.2_r30933",
+  "swconfigid": "B2B0522E",
+  "productid": "Philips-LTW012-1-E14CTv1"
 }

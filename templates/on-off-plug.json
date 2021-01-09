@@ -1,0 +1,32 @@
+{
+  "state": {
+    "on": false,
+    "alert": "select",
+    "mode": "homeautomation",
+    "reachable": false
+  },
+  "swupdate": {
+    "state": "notupdatable",
+    "lastinstall": null
+  },
+  "type": "On/Off plug-in unit",
+  "name": "BluetoothPlug",
+  "modelid": "Plug 01",
+  "manufacturername": "OSRAM",
+  "productname": "On/Off plug",
+  "capabilities": {
+    "certified": false,
+    "control": {},
+    "streaming": {
+      "renderer": false,
+      "proxy": false
+    }
+  },
+  "config": {
+    "archetype": "classicbulb",
+    "function": "functional",
+    "direction": "omnidirectional"
+  },
+  "uniqueid": "7c:b0:3e:aa:00:aa:aa:aa-03",
+  "swversion": "V1.04.12"
+}

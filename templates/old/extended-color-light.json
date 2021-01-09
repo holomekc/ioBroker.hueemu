@@ -1,0 +1,55 @@
+{
+  "state": {
+    "on": false,
+    "bri": 254,
+    "hue": 14927,
+    "sat": 132,
+    "effect": "none",
+    "ct": 439,
+    "colormode": "hs",
+    "reachable": true,
+    "mode": "homeautomation",
+    "alert": "none"
+  },
+  "type": "Extended color light",
+  "name": "ioBrokerTemplatedLight",
+  "modelid": "LCT003",
+  "uniqueid": "75844ca5-9b91-4e17-bd51-79029ad276ec",
+  "manufacturername": "Philips",
+  "swversion": "11111",
+  "config": {
+    "archetype": "spotbulb",
+    "function": "mixed",
+    "direction": "downwards"
+  },
+  "capabilities": {
+    "certified": true,
+    "streaming": {
+      "renderer": false,
+      "proxy": false
+    },
+    "control": {
+      "mindimlevel": 1000,
+      "maxlumen": 250,
+      "ct": {
+        "min": 153,
+        "max": 500
+      },
+      "colorgamuttype": "B",
+      "colorgamut": [
+        [
+          0.6750,
+          0.3220
+        ],
+        [
+          0.4090,
+          0.5180
+        ],
+        [
+          0.1670,
+          0.0400
+        ]
+      ]
+    }
+  }
+}

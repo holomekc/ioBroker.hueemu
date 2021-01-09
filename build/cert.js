@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Cert = void 0;
 /**
  * Container class for certificate and private key of client certificate.
  *

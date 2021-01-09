@@ -1,0 +1,37 @@
+{
+  "state": {
+    "on": false,
+    "bri": 254,
+    "ct": 439,
+    "colormode": "ct",
+    "reachable": true,
+    "mode": "homeautomation",
+    "alert": "none"
+  },
+  "type": "Color temperature light",
+  "name": "ioBrokerTemplatedLight",
+  "modelid": "LTW012",
+  "uniqueid": "97c4dac7-11f1-4333-b122-e34481fc7cbe",
+  "manufacturername": "Philips",
+  "swversion": "11111",
+  "config": {
+    "archetype": "classicbulb",
+    "function": "functional",
+    "direction": "omnidirectional"
+  },
+  "capabilities": {
+    "certified": true,
+    "streaming": {
+      "renderer": false,
+      "proxy": false
+    },
+    "control": {
+      "mindimlevel": 1000,
+      "maxlumen": 250,
+      "ct": {
+        "min": 153,
+        "max": 500
+      }
+    }
+  }
+}

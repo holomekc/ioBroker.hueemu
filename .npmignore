@@ -21,8 +21,8 @@ tsconfig.json
 tsconfig.*.json
 
 # ESLint configuration
+.eslintrc.jsonon
 .eslintrc.json
-.eslintrc.js
 
 # Sourcemaps
 maps/

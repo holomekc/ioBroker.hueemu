@@ -1,28 +1,35 @@
 {
   "state": {
     "on": false,
+    "bri": 254,
     "reachable": true,
     "mode": "homeautomation",
     "alert": "none"
   },
-  "type": "On/off light",
-  "modelid": "Plug 01",
-  "uniqueid": "e16ba9f9-1176-4979-9131-5e8ba8700167",
-  "manufacturername": "OSRAM",
-  "productname": "On/Off plug",
-  "swversion": "V1.04.12",
+  "type": "Dimmable light",
   "name": "ioBrokerTemplatedLight",
+  "modelid": "LWB010",
+  "uniqueid": "44df4f5f-49d9-4580-90f6-0790a59a77a1",
+  "manufacturername": "Philips",
+  "swversion": "11111",
   "config": {
     "archetype": "classicbulb",
     "function": "functional",
     "direction": "omnidirectional"
   },
   "capabilities": {
-    "certified": false,
+    "certified": true,
     "streaming": {
       "renderer": false,
       "proxy": false
     },
-    "control": {}
+    "control": {
+      "mindimlevel": 1000,
+      "maxlumen": 250,
+      "ct": {
+        "min": 153,
+        "max": 500
+      }
+    }
   }
 }

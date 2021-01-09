@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HueEmuLogger = void 0;
 class HueEmuLogger {
     constructor(adapter) {
         this.adapter = adapter;

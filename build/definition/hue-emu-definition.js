@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HueEmuDefinition = void 0;
 const functions_1 = require("./functions");
 const roles_1 = require("./roles");
 class HueEmuDefinition {

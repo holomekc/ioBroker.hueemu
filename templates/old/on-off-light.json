@@ -11,7 +11,7 @@
   "manufacturername": "OSRAM",
   "productname": "On/Off plug",
   "swversion": "V1.04.12",
-  "name": "ioBrokerTemplatedLight",
+  "name": "ioTest6",
   "config": {
     "archetype": "classicbulb",
     "function": "functional",

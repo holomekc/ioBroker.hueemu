@@ -1,35 +1,42 @@
 {
   "state": {
     "on": false,
-    "bri": 254,
-    "reachable": true,
+    "bri": 126,
+    "alert": "none",
     "mode": "homeautomation",
-    "alert": "none"
+    "reachable": true
+  },
+  "swupdate": {
+    "state": "noupdates",
+    "lastinstall": "2020-03-04T02:36:20"
   },
   "type": "Dimmable light",
   "name": "ioBrokerTemplatedLight",
   "modelid": "LWB010",
-  "uniqueid": "44df4f5f-49d9-4580-90f6-0790a59a77a1",
-  "manufacturername": "Philips",
-  "swversion": "11111",
-  "config": {
-    "archetype": "classicbulb",
-    "function": "functional",
-    "direction": "omnidirectional"
-  },
+  "manufacturername": "Signify Netherlands B.V.",
+  "productname": "Hue white lamp",
   "capabilities": {
     "certified": true,
+    "control": {
+      "mindimlevel": 2000,
+      "maxlumen": 806
+    },
     "streaming": {
       "renderer": false,
       "proxy": false
-    },
-    "control": {
-      "mindimlevel": 1000,
-      "maxlumen": 250,
-      "ct": {
-        "min": 153,
-        "max": 500
-      }
     }
-  }
+  },
+  "config": {
+    "archetype": "classicbulb",
+    "function": "functional",
+    "direction": "omnidirectional",
+    "startup": {
+      "mode": "powerfail",
+      "configured": true
+    }
+  },
+  "uniqueid": "00:17:88:01:02:bb:bb:bb-0b",
+  "swversion": "1.50.2_r30933",
+  "swconfigid": "754CE4FC",
+  "productid": "Philips-LWB010-1-A19DLv4"
 }

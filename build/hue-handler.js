@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HueHandler = void 0;
 const hue_error_1 = require("hue-emu/dist/error/hue-error");
+const error_response_1 = require("hue-emu/dist/response/error-response");
 const rxjs_1 = require("rxjs");
 const operators_1 = require("rxjs/operators");
 const uuid = require("uuid");
 class HueHandler {
-    constructor(adapter) {
+    constructor(adapter, hueBuilder) {
         this.adapter = adapter;
+        this.hueBuilder = hueBuilder;
     }
     onPairing(req, devicetype, generateclientkey) {
         this.adapter.log.info(`Pairing with devicetype=${devicetype} and generateclientkey=${generateclientkey}`);
@@ -30,8 +33,7 @@ class HueHandler {
             type: 'meta',
             common: {
                 name: 'user',
-                read: true,
-                write: false
+                type: 'meta.folder'
             },
             native: {}
         });
@@ -63,12 +65,18 @@ class HueHandler {
                             // this.log.info(lightId);
                             observables.push(this.onLight(req, username, lightId).pipe(operators_1.map(light => {
                                 return { id: lightId, light: light };
+                            }), operators_1.catchError((error) => {
+                                return rxjs_1.of({
+                                    id: lightId, light: {
+                                        'error': error_response_1.ErrorResponse.createMessage(error, `/lights/${lightId}`)
+                                    }
+                                });
                             })));
                         });
                         rxjs_1.merge(...observables).subscribe((value) => {
                             lights[value.id] = value.light;
-                        }, error => {
-                            // TODO: ???
+                        }, err => {
+                            this.hueBuilder.logger.error(`Something bad happened when light information was merged. Information may be incomplete: ${err}`);
                         }, () => {
                             subscriber.next(lights);
                             subscriber.complete();
@@ -88,17 +96,17 @@ class HueHandler {
             return new rxjs_1.Observable(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
                     if (!stateObjectsErr && stateObjects) {
-                        // this.log.info('stateObject length: ' + stateObjects.length);
-                        // this.log.info('found channel: ' + JSON.stringify(stateObjects));
+                        this.adapter.log.silly('stateObject length: ' + stateObjects.length);
+                        this.adapter.log.silly('found channel: ' + JSON.stringify(stateObjects));
                         const observables = [];
                         stateObjects.forEach(stateObject => {
-                            // this.log.info('iter: ' + stateObject._id);
+                            this.adapter.log.silly('iter: ' + stateObject._id);
                             observables.push(new rxjs_1.Observable(stateObjectSubscriber => {
                                 const id = stateObject._id.substr(this.adapter.namespace.length + 1);
-                                // this.log.info('search state: ' + id);
+                                this.adapter.log.silly('search state: ' + id);
                                 this.adapter.getState(id, (err, state) => {
                                     if (!err && state) {
-                                        // this.log.info('found state: ' + stateObject._id);
+                                        this.adapter.log.silly('found state: ' + stateObject._id);
                                         stateObjectSubscriber.next({
                                             id: stateObject._id.substr(stateObject._id.lastIndexOf('.') + 1),
                                             val: state.val
@@ -106,8 +114,13 @@ class HueHandler {
                                         stateObjectSubscriber.complete();
                                     }
                                     else {
-                                        // this.log.info('could not load state: ' + stateObject._id);
-                                        stateObjectSubscriber.complete();
+                                        this.adapter.log.silly('could not load state: ' + stateObject._id);
+                                        if (err) {
+                                            stateObjectSubscriber.error(err);
+                                        }
+                                        else {
+                                            stateObjectSubscriber.error(new Error(`state: ${stateObject._id} not found`));
+                                        }
                                     }
                                 });
                             }));
@@ -117,14 +130,15 @@ class HueHandler {
                         };
                         if (observables.length === 0) {
                             // well the light should at least have one state value. Otherwise this makes no sense
-                            // this.log.info('observables is empty');
+                            this.adapter.log.silly('observables is empty');
                             subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                         }
                         rxjs_1.merge(...observables).subscribe((value) => {
-                            // this.log.info('iter merged obs: ' + JSON.stringify(value));
+                            this.adapter.log.silly('iter merged obs: ' + JSON.stringify(value));
                             light.state[value.id] = value.val;
                         }, err => {
-                            // TODO: ???
+                            this.adapter.log.error(`Could not provide light information because a readable state could not be found: ${err}`);
+                            subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                         }, () => {
                             this.adapter.getState(lightId + '.name', (nameErr, nameState) => {
                                 if (!nameErr && nameState) {
@@ -138,20 +152,20 @@ class HueHandler {
                                             subscriber.complete();
                                         }
                                         else {
-                                            // this.log.info('Could not load data');
+                                            this.adapter.log.error(`Could not provide light information because data state could not be found.`);
                                             subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                                         }
                                     });
                                 }
                                 else {
-                                    // this.log.info('Could not load data');
+                                    this.adapter.log.error(`Could not provide light information because name state could not be found.`);
                                     subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                                 }
                             });
                         });
                     }
                     else {
-                        // this.log.info('found absolutely no state channel');
+                        this.adapter.log.error('State channel not found.');
                         subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                     }
                 });
@@ -203,11 +217,11 @@ class HueHandler {
     onConfig(req) {
         return rxjs_1.of({
             name: 'Philips hue',
-            datastoreversion: '90',
-            swversion: '1937045000',
-            apiversion: '1.36.0',
+            datastoreversion: '98',
+            swversion: '1941132080',
+            apiversion: '1.41.0',
             mac: this.adapter.config.mac,
-            bridgeid: this.getBridgeId(),
+            bridgeid: this.hueBuilder.bridgeId,
             factorynew: false,
             replacesbridgeid: null,
             modelid: 'BSB002',
@@ -223,11 +237,11 @@ class HueHandler {
                 result['groups'] = {};
                 result['config'] = {
                     name: 'Philips hue',
-                    datastoreversion: '90',
-                    swversion: '1937045000',
-                    apiversion: '1.36.0',
+                    datastoreversion: '98',
+                    swversion: '1941132080',
+                    apiversion: '1.41.0',
                     mac: this.adapter.config.mac,
-                    bridgeid: this.getBridgeId(),
+                    bridgeid: this.hueBuilder.bridgeId,
                     factorynew: false,
                     replacesbridgeid: null,
                     modelid: 'BSB002',
@@ -247,17 +261,11 @@ class HueHandler {
         this.adapter.log.warn('Request not handled by adapter: ' + req.url);
         return rxjs_1.of({});
     }
-    getBridgeId() {
-        let result = '';
-        for (let i = 0; i < 16; i++) {
-            result += this.adapter.instance;
-        }
-        return result;
-    }
     checkUserAuthenticated(username) {
         return new rxjs_1.Observable(subscriber => {
             this.adapter.getStatesOf('user', (err, stateObj) => {
                 if (this.adapter.disableAuth) {
+                    this.adapter.log.silly('Authentication is disabled skip check and allow access.');
                     subscriber.next(true);
                     subscriber.complete();
                     return;
@@ -290,6 +298,9 @@ class HueHandler {
                             subscriber.error(hue_error_1.HueError.UNAUTHORIZED_USER);
                         }
                     }
+                }
+                else {
+                    this.adapter.log.error('Could not find user states');
                 }
             });
         });

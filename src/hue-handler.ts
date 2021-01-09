@@ -1,17 +1,19 @@
-import {HueServerCallback, isDefined} from 'hue-emu';
+import {HueBuilder, HueServerCallback} from 'hue-emu';
 import {HueError} from 'hue-emu/dist/error/hue-error';
+import {ErrorResponse} from 'hue-emu/dist/response/error-response';
+import {HueSRequest} from 'hue-emu/dist/server/lib/hue-s-request';
+import {HueSResponse} from 'hue-emu/dist/server/lib/hue-s-response';
 import {merge, Observable, of, throwError} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {catchError, map, switchMap} from 'rxjs/operators';
 import * as uuid from 'uuid';
 import {HueEmu} from './main';
-import {Request, Response} from 'express';
 
 export class HueHandler implements HueServerCallback {
 
-    constructor(private adapter: HueEmu) {
+    constructor(private adapter: HueEmu, private hueBuilder: HueBuilder) {
     }
 
-    onPairing(req: Request, devicetype: string, generateclientkey?: boolean): Observable<string> {
+    onPairing(req: HueSRequest, devicetype: string, generateclientkey?: boolean): Observable<string> {
         this.adapter.log.info(`Pairing with devicetype=${devicetype} and generateclientkey=${generateclientkey}`);
 
         if (!this.adapter.disableAuth && !this.adapter.pairingEnabled) {
@@ -38,8 +40,7 @@ export class HueHandler implements HueServerCallback {
             type: 'meta',
             common: {
                 name: 'user',
-                read: true,
-                write: false
+                type: 'meta.folder'
             },
             native: {}
         });
@@ -61,12 +62,11 @@ export class HueHandler implements HueServerCallback {
         });
     }
 
-    onLights(req: Request, username: string): Observable<any> {
+    onLights(req: HueSRequest, username: string): Observable<any> {
         this.adapter.log.debug(`Get lights`);
 
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
             return new Observable<any>(subscriber => {
-
                 const lights = {};
 
                 this.adapter.getDevices((err, channelObjects) => {
@@ -79,13 +79,19 @@ export class HueHandler implements HueServerCallback {
 
                             observables.push(this.onLight(req, username, lightId).pipe(map(light => {
                                 return {id: lightId, light: light}
+                            }), catchError((error) => {
+                                return of({
+                                    id: lightId, light: {
+                                        'error': ErrorResponse.createMessage(error, `/lights/${lightId}`)
+                                    }
+                                });
                             })));
                         });
 
                         merge(...observables).subscribe((value: any) => {
                             (lights as any)[value.id] = value.light;
-                        }, error => {
-                            // TODO: ???
+                        }, err => {
+                            this.hueBuilder.logger.error(`Something bad happened when light information was merged. Information may be incomplete: ${err}`);
                         }, () => {
                             subscriber.next(lights);
                             subscriber.complete();
@@ -99,36 +105,40 @@ export class HueHandler implements HueServerCallback {
         }));
     }
 
-    onLight(req: Request, username: string, lightId: string): Observable<any> {
+    onLight(req: HueSRequest, username: string, lightId: string): Observable<any> {
         this.adapter.log.debug(`Get light=${lightId}`);
 
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
             return new Observable<any>(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
                     if (!stateObjectsErr && stateObjects) {
-                        // this.log.info('stateObject length: ' + stateObjects.length);
-                        // this.log.info('found channel: ' + JSON.stringify(stateObjects));
+                        this.adapter.log.silly('stateObject length: ' + stateObjects.length);
+                        this.adapter.log.silly('found channel: ' + JSON.stringify(stateObjects));
 
                         const observables: any = [];
 
                         stateObjects.forEach(stateObject => {
-                            // this.log.info('iter: ' + stateObject._id);
+                            this.adapter.log.silly('iter: ' + stateObject._id);
 
                             observables.push(new Observable(stateObjectSubscriber => {
                                 const id = stateObject._id.substr(this.adapter.namespace.length + 1);
-                                // this.log.info('search state: ' + id);
+                                this.adapter.log.silly('search state: ' + id);
 
                                 this.adapter.getState(id, (err, state) => {
                                     if (!err && state) {
-                                        // this.log.info('found state: ' + stateObject._id);
+                                        this.adapter.log.silly('found state: ' + stateObject._id);
                                         stateObjectSubscriber.next({
                                             id: stateObject._id.substr(stateObject._id.lastIndexOf('.') + 1),
                                             val: state.val
                                         });
                                         stateObjectSubscriber.complete();
                                     } else {
-                                        // this.log.info('could not load state: ' + stateObject._id);
-                                        stateObjectSubscriber.complete();
+                                        this.adapter.log.silly('could not load state: ' + stateObject._id);
+                                        if (err) {
+                                            stateObjectSubscriber.error(err);
+                                        } else {
+                                            stateObjectSubscriber.error(new Error(`state: ${stateObject._id} not found`));
+                                        }
                                     }
                                 });
                             }));
@@ -140,16 +150,16 @@ export class HueHandler implements HueServerCallback {
 
                         if (observables.length === 0) {
                             // well the light should at least have one state value. Otherwise this makes no sense
-
-                            // this.log.info('observables is empty');
+                            this.adapter.log.silly('observables is empty');
                             subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                         }
 
                         merge(...observables).subscribe((value: any) => {
-                            // this.log.info('iter merged obs: ' + JSON.stringify(value));
+                            this.adapter.log.silly('iter merged obs: ' + JSON.stringify(value));
                             (light.state as any)[value.id] = value.val;
                         }, err => {
-                            // TODO: ???
+                            this.adapter.log.error(`Could not provide light information because a readable state could not be found: ${err}`);
+                            subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                         }, () => {
                             this.adapter.getState(lightId + '.name', (nameErr, nameState) => {
                                 if (!nameErr && nameState) {
@@ -158,24 +168,24 @@ export class HueHandler implements HueServerCallback {
                                     this.adapter.getState(lightId + '.data', (dataErr, dataState) => {
                                         if (!dataErr && dataState) {
 
-                                            Object.keys(dataState.val).forEach((dataKey) => {
-                                                (light as any)[dataKey] = dataState.val[dataKey];
+                                            Object.keys(dataState.val as any).forEach((dataKey) => {
+                                                (light as any)[dataKey] = (dataState.val as any)[dataKey];
                                             });
                                             subscriber.next(light);
                                             subscriber.complete();
                                         } else {
-                                            // this.log.info('Could not load data');
+                                            this.adapter.log.error(`Could not provide light information because data state could not be found.`);
                                             subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                                         }
                                     });
                                 } else {
-                                    // this.log.info('Could not load data');
+                                    this.adapter.log.error(`Could not provide light information because name state could not be found.`);
                                     subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                                 }
                             });
                         });
                     } else {
-                        // this.log.info('found absolutely no state channel');
+                        this.adapter.log.error('State channel not found.');
                         subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
                     }
                 });
@@ -183,7 +193,7 @@ export class HueHandler implements HueServerCallback {
         }));
     }
 
-    onLightsState(req: Request, username: string, lightId: string, key: string, value: any): Observable<any> {
+    onLightsState(req: HueSRequest, username: string, lightId: string, key: string, value: any): Observable<any> {
         this.adapter.log.debug(`Update for light=${lightId}, key=${key}, value=${value}`);
 
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
@@ -230,14 +240,14 @@ export class HueHandler implements HueServerCallback {
         }));
     }
 
-    onConfig(req: Request): Observable<any> {
+    onConfig(req: HueSRequest): Observable<any> {
         return of({
             name: 'Philips hue',
-            datastoreversion: '90',
-            swversion: '1937045000',
-            apiversion: '1.36.0',
+            datastoreversion: '98',
+            swversion: '1941132080',
+            apiversion: '1.41.0',
             mac: this.adapter.config.mac,
-            bridgeid: this.getBridgeId(),
+            bridgeid: this.hueBuilder.bridgeId,
             factorynew: false,
             replacesbridgeid: null,
             modelid: 'BSB002',
@@ -245,7 +255,7 @@ export class HueHandler implements HueServerCallback {
         });
     }
 
-    onAll(req: Request, username: string): Observable<any> {
+    onAll(req: HueSRequest, username: string): Observable<any> {
         this.adapter.log.debug(`Get all`);
 
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
@@ -257,11 +267,11 @@ export class HueHandler implements HueServerCallback {
                 result['groups'] = {};
                 result['config'] = {
                     name: 'Philips hue',
-                    datastoreversion: '90',
-                    swversion: '1937045000',
-                    apiversion: '1.36.0',
+                    datastoreversion: '98',
+                    swversion: '1941132080',
+                    apiversion: '1.41.0',
                     mac: this.adapter.config.mac, // May be checked by some clients. May also be valid value.
-                    bridgeid: this.getBridgeId(),
+                    bridgeid: this.hueBuilder.bridgeId,
                     factorynew: false,
                     replacesbridgeid: null,
                     modelid: 'BSB002',
@@ -279,28 +289,20 @@ export class HueHandler implements HueServerCallback {
         }));
     }
 
-    onFallback(req: Request, res: Response): Observable<any> {
+    onFallback(req: HueSRequest, res: HueSResponse): Observable<any> {
         this.adapter.log.warn('Request not handled by adapter: ' + req.url);
         return of({});
-    }
-
-    private getBridgeId(): string {
-        let result = '';
-        for (let i = 0; i < 16; i++) {
-            result += this.adapter.instance;
-        }
-        return result;
     }
 
     private checkUserAuthenticated(username: string): Observable<boolean> {
         return new Observable<boolean>(subscriber => {
             this.adapter.getStatesOf('user', (err, stateObj) => {
                 if (this.adapter.disableAuth) {
+                    this.adapter.log.silly('Authentication is disabled skip check and allow access.');
                     subscriber.next(true);
                     subscriber.complete();
                     return;
                 }
-
 
                 if (!err && stateObj) {
                     let found = false;
@@ -330,6 +332,8 @@ export class HueHandler implements HueServerCallback {
                             subscriber.error(HueError.UNAUTHORIZED_USER);
                         }
                     }
+                } else {
+                    this.adapter.log.error('Could not find user states');
                 }
             });
         });

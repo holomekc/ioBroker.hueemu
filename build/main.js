@@ -12,6 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HueEmu = void 0;
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
@@ -75,7 +76,7 @@ class HueEmu extends utils.Adapter {
             this.config.upnpPort = this.toDefaultPort(this.config.upnpPort, 1900);
             let hueBuilderUpnp = hue_emu_1.HueBuilder.builder().withHost(this.config.host).withPort(this.config.port)
                 .withHttps(undefined).withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
-                .withUdn(this.config.udn).withUpnpPort(this.config.upnpPort);
+                .withUdn(this.config.udn).withMac(this.config.mac).withUpnpPort(this.config.upnpPort);
             if (this.log.level === 'silly') {
                 // There might be a lot of upnp communication which would flood the logs. So only on silly.
                 hueBuilderUpnp.withLogger(new hue_emu_logger_1.HueEmuLogger(this));
@@ -96,16 +97,17 @@ class HueEmu extends utils.Adapter {
             certObservable.subscribe(httpsConfig => {
                 let hueBuilder = hue_emu_1.HueBuilder.builder().withHost(this.config.host).withPort(this.config.port).withHttps(httpsConfig)
                     .withDiscoveryHost(this.config.discoveryHost).withDiscoveryPort(this.config.discoveryPort)
-                    .withUdn(this.config.udn).withLogger(new hue_emu_logger_1.HueEmuLogger(this));
+                    .withUdn(this.config.udn).withMac(this.config.mac).withLogger(new hue_emu_logger_1.HueEmuLogger(this));
                 new hue_emu_1.HueUpnp(hueBuilderUpnp);
-                new hue_emu_1.HueServer(hueBuilder, new hue_handler_1.HueHandler(this));
+                new hue_emu_1.HueServer(hueBuilder, new hue_handler_1.HueHandler(this, hueBuilder));
             });
             this.setObjectNotExists('createLight', {
                 type: 'state',
                 common: {
                     name: 'createLight',
                     read: true,
-                    write: true
+                    write: true,
+                    role: 'state'
                 },
                 native: {},
             }, () => {
@@ -266,8 +268,7 @@ class HueEmu extends utils.Adapter {
         this.setObjectNotExists(lightId, {
             type: 'device',
             common: {
-                name: lights[lightId].name,
-                read: true
+                name: lights[lightId].name
             },
             native: {},
         });
@@ -276,8 +277,7 @@ class HueEmu extends utils.Adapter {
         this.setObjectNotExists(`${lightId}.state`, {
             type: 'channel',
             common: {
-                name: 'state',
-                read: true
+                name: 'state'
             },
             native: {},
         }, (err, id) => {
