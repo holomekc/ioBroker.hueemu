@@ -10,7 +10,7 @@
     "lastinstall": null
   },
   "type": "On/Off plug-in unit",
-  "name": "BluetoothPlug",
+  "name": "ioBrokerTemplatedPlug",
   "modelid": "Plug 01",
   "manufacturername": "OSRAM",
   "productname": "On/Off plug",

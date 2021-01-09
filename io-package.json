@@ -109,9 +109,9 @@
 	},
 	"native": {
 		"host": "192.168.178.10",
-		"port": "192.168.178.10",
+		"port": "8080",
 		"discoveryHost": "192.168.178.10",
-		"discoveryPort": "192.168.178.10",
+		"discoveryPort": "8080",
 		"udn": "",
 		"mac": "",
 		"upnpPort": "1900"

@@ -174,6 +174,9 @@ class HueHandler {
     }
     onLightsState(req, username, lightId, key, value) {
         this.adapter.log.debug(`Update for light=${lightId}, key=${key}, value=${value}`);
+        if (true) {
+            return rxjs_1.of(null);
+        }
         return this.checkUserAuthenticated(username).pipe(operators_1.switchMap(() => {
             return new rxjs_1.Observable(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
