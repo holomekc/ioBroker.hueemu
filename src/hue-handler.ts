@@ -197,8 +197,42 @@ export class HueHandler implements HueServerCallback {
         this.adapter.log.debug(`Update for light=${lightId}, key=${key}, value=${value}`);
 
         return this.checkUserAuthenticated(username).pipe(switchMap(() => {
-            // We do not provide light information. Just needed for logging in hue lib and makes it only slower
-            return of({"state": {}});
+            return new Observable<any>(subscriber => {
+                this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
+                    if (!stateObjectsErr && stateObjects) {
+
+                        let found = false;
+
+                        stateObjects.forEach(stateObject => {
+
+                            const id = stateObject._id.substr(this.adapter.namespace.length + 1);
+                            const lightKey = stateObject._id.substr(stateObject._id.lastIndexOf('.') + 1);
+
+                            if (lightKey === key) {
+                                found = true;
+                                this.adapter.setState(id, {
+                                    val: value, ack: true
+                                }, (err, id) => {
+
+                                    if (!err) {
+                                        // we do not search for light again this only costs time and is not necessary.
+                                        subscriber.next({"state": {}});
+                                        subscriber.complete();
+                                    } else {
+                                        subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
+                                    }
+                                });
+                            }
+                        });
+                        if (!found) {
+                            this.adapter.log.warn(`Could not find key=${key} for light=${lightId}`);
+                            subscriber.error(HueError.PARAMETER_NOT_AVAILABLE.withParams(key));
+                        }
+                    } else {
+                        subscriber.error(HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
+                    }
+                });
+            });
         }));
     }
 

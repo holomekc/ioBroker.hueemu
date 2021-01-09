@@ -174,9 +174,6 @@ class HueHandler {
     }
     onLightsState(req, username, lightId, key, value) {
         this.adapter.log.debug(`Update for light=${lightId}, key=${key}, value=${value}`);
-        if (true) {
-            return rxjs_1.of(null);
-        }
         return this.checkUserAuthenticated(username).pipe(operators_1.switchMap(() => {
             return new rxjs_1.Observable(subscriber => {
                 this.adapter.getStatesOf(lightId, 'state', (stateObjectsErr, stateObjects) => {
@@ -185,19 +182,15 @@ class HueHandler {
                         stateObjects.forEach(stateObject => {
                             const id = stateObject._id.substr(this.adapter.namespace.length + 1);
                             const lightKey = stateObject._id.substr(stateObject._id.lastIndexOf('.') + 1);
-                            // this.log.info('onState: ' + id);
                             if (lightKey === key) {
                                 found = true;
                                 this.adapter.setState(id, {
                                     val: value, ack: true
                                 }, (err, id) => {
                                     if (!err) {
-                                        this.onLight(req, username, lightId).subscribe(light => {
-                                            subscriber.next(light);
-                                            subscriber.complete();
-                                        }, error => {
-                                            subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
-                                        });
+                                        // we do not search for light again this only costs time and is not necessary.
+                                        subscriber.next({ "state": {} });
+                                        subscriber.complete();
                                     }
                                     else {
                                         subscriber.error(hue_error_1.HueError.RESOURCE_NOT_AVAILABLE.withParams(lightId));
